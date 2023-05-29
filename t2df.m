@@ -17,9 +17,17 @@ function df = t2df(tab)
         for l = 1:size(column, 2) 
             if matches(types{k}, 'cell')
                 if(size(column(:,l), 1) ~= 1)
-                    pandasColumn = py.pandas.DataFrame(column(:,l).cellstr', columns = {names{k}}, dtype="string");
+                    if ~isstring(column{1,l}(1))
+                        disp('Converting to string');
+                        new_col = cell(length(column), 1);
+                        for m=1:length(column)
+                            new_col{m, 1} = num2str(column{m,l});
+                        end
+                        column = new_col;
+                    end
+                    pandasColumn = py.pandas.DataFrame(cellstr(column(:,l)).', columns = {names{k}}, dtype="string");
                 else
-                    pandasColumn = py.pandas.DataFrame(column(:,l).cellstr, columns = {names{k}}, dtype="string");
+                    pandasColumn = py.pandas.DataFrame(cellstr(column(:,l)), columns = {names{k}}, dtype="string");
                 end
             elseif matches(types{k}, 'logical')
                     pandasColumn = py.pandas.DataFrame(arrayfun(@(x) py.bool(x), column(:,l), 'UniformOutput', false)', columns = {names{k}}, dtype="bool");
